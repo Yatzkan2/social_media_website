@@ -144,6 +144,11 @@ class Database {
         }
     }
 }
+function download_photo($img_url = IMG_URL, $images_folder = IMG_FOLDER_PATH){
+    if (!file_put_contents($images_folder."profile.jpg", file_get_contents($img_url))) {
+        echo "failed to save the image.";
+    }
+} 
 function api_call($apiurl = ""){
 
     
@@ -161,6 +166,16 @@ function api_call($apiurl = ""){
         curl_close($curl);
         return $response;
     }
+}
+function rand_date(){
+    $strt = strtotime("100 years ago");
+    $end = strtotime("today");
+    return date("Y-m-d",mt_rand($strt, $end));  
+}
+function rand_time(){
+    $strt = strtotime("today");
+    $end = strtotime("tomorrow");
+    return date("H:m:s",mt_rand($strt, $end));  
 }
 function init_database(
     $users_api_url = USERS_API_URL,
