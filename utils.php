@@ -148,7 +148,39 @@ function download_photo($img_url = IMG_URL, $images_folder = IMG_FOLDER_PATH){
     if (!file_put_contents($images_folder."profile.jpg", file_get_contents($img_url))) {
         echo "failed to save the image.";
     }
-} 
+}
+function post_count($users_table_name = USERS_TABLE_NAME, $posts_table_name = POSTS_TABLE_NAME, 
+                    $servername = SERVERNAME, $username = USERNAME,$password = PASSWORD,$dbname = DBNAME) 
+{
+    $db_obj = new Database($servername, $username, $password, $dbname);
+    $tables = $posts_table_name;
+    $columns = "DATE(posted_date) AS post_date, SUBSTRING(posted_time, 1, 2) AS post_hour, COUNT(*) AS post_count";
+    $condition = "GROUP BY post_date, post_hour ORDER BY post_date, post_hour";
+    $result = $db_obj->select($tables, $columns, $condition);
+    $db_obj->close_connection();
+    return $result;
+}
+function birthday_post($month ,$users_table_name = USERS_TABLE_NAME, $posts_table_name = POSTS_TABLE_NAME, 
+                        $servername = SERVERNAME, $username = USERNAME,$password = PASSWORD,$dbname = DBNAME)
+{
+    $db_obj = new Database($servername, $username, $password, $dbname);
+    $tables = "posts p";
+    $columns = "p.*, subquery.user_id";
+    $condition = "join ( select u.user_id, max(concat(p.posted_date, ' ', p.posted_time)) as max_datetime from users u join posts p on u.user_id = p.author_id where u.birthday LIKE '_____".$month."___' group by u.user_id ) subquery on p.author_id = subquery.user_id and concat(p.posted_date, ' ', p.posted_time) = subquery.max_datetime";
+    $result = $db_obj->select($tables, $columns, $condition);
+    $db_obj->close_connection();
+    return $result;
+}
+function extract_feed_data($users_table_name = USERS_TABLE_NAME, $posts_table_name = POSTS_TABLE_NAME, 
+                        $servername = SERVERNAME, $username = USERNAME,$password = PASSWORD,$dbname = DBNAME) 
+{ 
+    $tables = "$users_table_name u, $posts_table_name p";
+    $condition = "where u.user_id = p.author_id and u.active_user = true";
+    $db_obj = new Database($servername, $username, $password, $dbname);
+    $result=$db_obj->select($tables, "*", $condition);
+    $db_obj->close_connection();
+    return $result;
+}  
 function api_call($apiurl = ""){
 
     
