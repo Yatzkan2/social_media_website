@@ -144,4 +144,22 @@ class Database {
         }
     }
 }
+function api_call($apiurl = ""){
+
+    
+    $curl = curl_init();
+    
+    curl_setopt($curl, CURLOPT_URL, $apiurl);//setting API url
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);//setting options to return the response as a string rather than ouput it
+    
+    $response = curl_exec($curl);//sending the url through the browser
+    
+    if(curl_errno($curl)){
+        echo curl_error($curl);
+    } 
+    else {
+        curl_close($curl);
+        return $response;
+    }
+}
 ?>
