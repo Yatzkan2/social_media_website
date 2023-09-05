@@ -162,4 +162,60 @@ function api_call($apiurl = ""){
         return $response;
     }
 }
+function init_database(
+    $users_api_url = USERS_API_URL,
+    $posts_api_url = POSTS_API_URL,
+    $dbname = DBNAME,
+    $servername = SERVERNAME,
+    $username = USERNAME,
+    $password = PASSWORD,
+    $users_table_name = USERS_TABLE_NAME,
+    $users_columns = USERS_COLUMNS,
+    $posts_table_name = POSTS_TABLE_NAME,
+    $posts_columns = POSTS_COLUMNS,
+    $users_col_names = USERS_COL_NAMES,
+    $posts_col_names = POSTS_COL_NAMES
+) {
+   
+    //echo "INIT_DATABASE";
+    $res=api_call($users_api_url);
+    $parsed_users = json_decode($res);
+
+    $res=api_call($posts_api_url);
+    $parsed_posts = json_decode($res);
+
+    //create database 
+    Database::create_db($dbname,$servername,$username,$password);
+    //connect to database
+    $db_obj = new Database($servername, $username, $password, $dbname);
+    //create tables
+    $db_obj->create_table($users_table_name, $users_columns);
+    $db_obj->create_table($posts_table_name, $posts_columns);
+    //insert rows
+    
+    foreach ($parsed_users as $index => $row) {
+        $db_obj->insert(
+            $users_table_name, 
+            $users_col_names, 
+            [$row->id, "'".$row->email."'", "'".rand_date()."'" ,mt_rand(0, 1)]
+        );
+        //echo "$row->id $row->email" . rand(0, 1);
+        if ($index > 20) {
+            break;
+        }
+    }
+    
+    foreach ($parsed_posts as $index => $row) {
+        $db_obj->insert(
+            $posts_table_name,
+            $posts_col_names,
+            [$row->id, $row->userId, "'".$row->title."'", "'".$row->body."'", "'".rand_date()."'", "'".rand_time()."'",rand(0, 1)]
+        );
+        if ($index > 50) {
+            break;
+        }
+    }
+    
+    $db_obj->close_connection();
+}
 ?>
