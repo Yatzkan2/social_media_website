@@ -18,6 +18,7 @@ Before running the project, make sure you have a local server like Apache and My
 
 ## Directory Structure
 
+```bash
 socia-media/
 │
 ├── images/
@@ -28,3 +29,4 @@ socia-media/
 ├── index.php
 ├── init.php
 ├── utils.php
+```
